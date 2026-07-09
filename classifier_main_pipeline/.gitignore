@@ -1,0 +1,44 @@
+# ── Data —
+data/
+*.edf
+*.npy
+*.csv
+
+# ── Trained models ────────────────────────────────────────
+models/*.pth
+models/*.pkl
+models/*.h5
+
+# ── Python cache ──────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# ── Jupyter ───────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Environment ───────────────────────────────────────────
+venv/
+.env
+.venv/
+
+# ── VS Code ───────────────────────────────────────────────
+.vscode/
+
+# ── OS files ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────
+logs/*.log
+logs/*.txt
+
+# ── Keeping folder structure but not contents ────────────────
+!data/.gitkeep
+!models/.gitkeep
+!logs/.gitkeep
+!plots/.gitkeep
