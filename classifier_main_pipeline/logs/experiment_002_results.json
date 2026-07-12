@@ -1,0 +1,12 @@
+{
+  "experiment": "002",
+  "name": "CNN on EEG Spectrograms",
+  "date": "2026-07-12",
+  "model": "ResNet18 fine-tuned",
+  "accuracy": 0.7167,
+  "rem_recall": 0.6578,
+  "vs_baseline": {
+    "accuracy_delta": -0.0518,
+    "rem_recall_delta": -0.1822
+  }
+}

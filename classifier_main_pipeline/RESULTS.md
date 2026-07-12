@@ -76,3 +76,37 @@
 
 \- Cross-subject validation (leave-one-subject-out)
 
+
+## Experiment 002 — CNN on EEG Spectrograms
+**Date**: July 2026  
+**Model**: ResNet18 fine-tuned on EEG spectrograms  
+**Result**: 71.67% accuracy, REM recall 0.66
+
+### Comparison vs Experiment 001
+| Metric           | LSTM (001) | CNN (002) | Change  |
+|------------------|------------|-----------|---------|
+| Overall accuracy | 76.85%     | 71.67%    | ↓ 5.18% |
+| REM recall       | 0.84       | 0.66      | ↓ 0.18  |
+
+### Conclusion
+**LSTM outperforms CNN on raw EEG classification.**
+
+CNN on spectrograms lost because:
+1. EEG is fundamentally temporal — LSTM's sequential 
+   memory better captures brain state transitions
+2. Spectrogram resolution is low — CNNs need rich 
+   spatial structure to extract meaningful features
+3. ImageNet features don't transfer to EEG domain —
+   brain signals look nothing like natural images
+
+### Implication for Project 07
+SleepLSTM remains the primary classifier.
+CNN approach may improve with higher resolution 
+spectrograms or domain-specific pretraining.
+
+### Next experiment
+Experiment 003 — CNN-LSTM Hybrid
+Use CNN to extract features from each EEG window,
+then feed feature sequence into LSTM for temporal 
+modelling. Combines spatial + temporal understanding.
+Target: beat LSTM baseline of 76.85%.
