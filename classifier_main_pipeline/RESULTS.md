@@ -110,3 +110,36 @@ Use CNN to extract features from each EEG window,
 then feed feature sequence into LSTM for temporal 
 modelling. Combines spatial + temporal understanding.
 Target: beat LSTM baseline of 76.85%.
+
+
+## Experiment 003 — CNN-LSTM Hybrid
+**Date**: July 2026  
+**Model**: CNNLSTMSleepClassifier  
+**Result**: 80.14% accuracy, REM F1 0.81   (New best)
+
+### Three-way comparison
+| Metric           | LSTM (001) | CNN (002) | Hybrid (003) |
+|------------------|------------|-----------|--------------|
+| Overall accuracy | 76.85%     | 71.67%    | **80.14%** ★ |
+| REM recall       | **0.84** ★ | 0.66      | 0.83         |
+| REM F1           | 0.74       | 0.65      | **0.81** ★   |
+| N1 F1            | 0.35       | 0.32      | **0.47** ★   |
+
+### Conclusion
+**CNN-LSTM hybrid is the new primary classifier for Project 07.**
+
+The CNN extracts local frequency features from 3-second windows.
+The LSTM models how those features transition over 30 seconds.
+Together they improve every stage except N3 (≈ same).
+
+Most significant: N1 F1 improved from 0.35 → 0.47 (+34%).
+N1 is the target trigger stage — better N1 detection means
+more reliable lucid dream induction timing.
+
+### Implication for Project 07
+Replace SleepLSTM with CNNLSTMSleepClassifier as primary 
+classifier. Update detect_rem.py and train_rem_model.py.
+
+### Next experiment
+Experiment 004 — Add self-attention over CNN windows.
+Let the model learn WHICH 3-second windows matter most.
