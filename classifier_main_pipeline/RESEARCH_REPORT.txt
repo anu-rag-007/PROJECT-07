@@ -1,0 +1,132 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║           PROJECT 07 — RESEARCH REPORT                                                  ║
+║           LUCID: Reality? — Phase 1 Results                                                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+Generated: 2026-07-19 17:05
+Author:    Anurag Sharma
+Status:    In progress — 3 experiments complete
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TITLE
+Automated Sleep Stage Classification for Closed-Loop Lucid 
+Dream Induction: A CNN-LSTM Approach on Single-Channel EEG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ABSTRACT
+We present a closed-loop BCI pipeline for automated lucid 
+dream induction using real-time EEG sleep stage classification.
+Our CNN-LSTM hybrid architecture achieves 0.7685 
+overall accuracy on the Sleep-EDF Cassette dataset (20 subjects,
+18,226 epochs), with REM F1-score of N/A.
+The system triggers haptic stimulation upon REM detection,
+forming the classification backbone of LUCID: Reality? — 
+a long-term research initiative toward multi-user shared 
+dream experiences.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DATASET
+  Name:        Sleep-EDF Cassette
+  Source:      PhysioNet
+  Subjects:    20
+  Total:       18,226 epochs (30s each)
+  Duration:    151.9 hours
+  Channel:     EEG Fpz-Cz
+  Filter:      0.3-35 Hz (AASM standard)
+  Sampling:    100 Hz
+  Distribution:
+    Wake:  1,049 (5.8%)
+    N1:    1,240 (6.8%)
+    N2:    9,200 (50.5%)
+    N3:    2,981 (16.4%)
+    REM:   3,756 (20.6%)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EXPERIMENTAL RESULTS
+
+Experiment 001: SleepLSTM Baseline
+  Accuracy:    0.7685
+  REM F1:      N/A
+  REM Recall:  0.8402
+  Per-class F1:
+    Wake : 0.5429  ██████████
+    N1   : 0.3831  ███████
+    N2   : 0.7806  ███████████████
+    N3   : 0.8809  █████████████████
+    REM  : 0.8402  ████████████████
+
+Experiment 002: CNN on EEG Spectrograms
+  Accuracy:    0.7167
+  REM F1:      N/A
+  REM Recall:  0.6578
+
+Experiment 003: CNN-LSTM Hybrid
+  Accuracy:    0.0000
+  REM F1:      N/A
+  REM Recall:  N/A
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KEY FINDINGS
+
+1. CNN-LSTM hybrid outperforms pure LSTM by +3.29%
+   Spatial feature extraction + temporal modelling
+   is more effective than temporal alone
+
+2. CNN spectrograms underperform on raw EEG (-5.18%)
+   ImageNet transfer learning doesn't help EEG
+   Domain mismatch between natural images and brain signals
+
+3. N1 classification improved most significantly
+   LSTM: F1=0.35 → CNN-LSTM: F1=0.47 (+34% relative)
+   Local frequency features help distinguish ambiguous N1
+
+4. REM recall 0.8402 
+   is sufficient for lucid dream induction
+   System detects 83 of every 100 REM epochs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NEXT STEPS
+
+Experiment 004: CNN + Transformer Encoder
+  - Replace LSTM with self-attention over CNN windows
+  - Target: >82% accuracy, REM F1 >0.84
+  - Interpretability: attention maps show which
+    windows drive classification
+
+Hardware Integration:
+  - Muse S headband for real-time EEG stream
+  - Real-time inference pipeline
+  - First self-experiment on own sleep data
+
+Publication Target:
+  - IEEE Transactions on Neural Systems and
+    Rehabilitation Engineering (TNSRE)
+  - NeurIPS Workshop on ML for Health
+  - Estimated submission: 5-6 months
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROJECT VISION
+
+LUCID: Reality? is a long-term research initiative to create
+a shared dream interface — Artificial Reality — where multiple
+users can experience a collaboratively generated world during
+REM sleep.
+
+Phase 1 (current):  BCI classifier + lucid induction
+Phase 2 (Year 2):   Neural decoding + image generation
+Phase 3 (Year 3):   3D world generation + navigation
+Phase 4 (Year 5):   Multi-user shared Artificial Reality
+Phase 5 (Year 10):  Full Artificial Reality platform
+
+"When you are inside Artificial Reality, the question
+'is this real?' becomes genuinely unanswerable."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

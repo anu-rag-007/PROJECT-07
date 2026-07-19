@@ -1,16 +1,20 @@
-import joblib
-import numpy as np
-from archive.feature_extraction import extract_features
+# In detect_rem.py — replace old model loading with:
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
+from lstm_model import SleepLSTM   # keep for reference
+# Import new model
+import torch
+import torch.nn as nn
 
-model = joblib.load("rem_model.pkl")
+# Add CNNLSTMSleepClassifier definition here
+# or import from a new file cnn_lstm_model.py
 
-def predict_rem(eeg_window, fs):
-    features = extract_features(eeg_window, fs)
-    features = features.reshape(1, -1)
-
-    prob = model.predict_proba(features)[0][1]
-
-    if prob > 0.6:
-        return 1, prob  # REM
-    else:
-        return 0, prob  # Non-REM
+# Load best model
+MODEL_PATH = os.path.join(
+    os.path.dirname(__file__), '..',
+    'models', 'cnn_lstm_hybrid_best.pth'
+)
+# model = CNNLSTMSleepClassifier(...)
+# model.load_state_dict(torch.load(MODEL_PATH))
+# model.eval()
