@@ -1,0 +1,44 @@
+{
+  "experiment": "004",
+  "name": "EEG Transformer",
+  "date": "2026-07-21",
+  "model": "EEGTransformer",
+  "config": {
+    "n_windows": 10,
+    "window_size": 300,
+    "d_model": 128,
+    "num_heads": 4,
+    "ff_dim": 256,
+    "num_layers": 4,
+    "dropout": 0.3,
+    "optimizer": "Adam (CNN: 5e-4, Trans: 1e-3)",
+    "scheduler": "CosineAnnealing",
+    "epochs": 60,
+    "batch_size": 64,
+    "weight_decay": 0.0001
+  },
+  "results": {
+    "accuracy": 0.7929,
+    "cohen_kappa": 0.7003,
+    "rem_recall": 0.8229,
+    "rem_f1": 0.8005,
+    "n1_f1": 0.4459,
+    "per_class_f1": {
+      "Wake": 0.6318,
+      "N1": 0.4459,
+      "N2": 0.8524,
+      "N3": 0.8395,
+      "REM": 0.8005
+    }
+  },
+  "vs_baselines": {
+    "vs_001_lstm": {
+      "accuracy_delta": 0.0244,
+      "rem_f1_delta": 0.0605
+    },
+    "vs_003_cnn_lstm": {
+      "accuracy_delta": -0.0085,
+      "rem_f1_delta": -0.0095
+    }
+  }
+}
