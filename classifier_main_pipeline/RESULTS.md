@@ -57,3 +57,22 @@
 - vs_exp002_cnn rem_recall_delta: ↑0.1669
 
 ---
+
+## Experiment 004 — EEG Transformer
+**Result**: 79.29% accuracy
+
+### Key finding
+Transformer underperforms CNN-LSTM by 0.85% on this
+dataset size (18,226 epochs). Consistent with literature
+showing transformers require larger datasets than RNNs
+to overcome their lack of sequential inductive bias.
+
+### Scientific contribution
+Attention maps provide interpretable evidence of which
+3-second EEG windows drive sleep stage classification —
+independent of accuracy comparisons.
+
+### Implication for Project 07
+CNN-LSTM remains primary classifier.
+Transformer used for interpretability analysis.
+Both results contribute to the paper.
