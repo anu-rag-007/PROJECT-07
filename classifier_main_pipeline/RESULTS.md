@@ -76,3 +76,27 @@ independent of accuracy comparisons.
 CNN-LSTM remains primary classifier.
 Transformer used for interpretability analysis.
 Both results contribute to the paper.
+
+### SUMMARY METRICS TABLE
+
+=================================================================
+TABLE II — Classification Performance
+Sleep-EDF Cassette Dataset (20 subjects)
+=================================================================
+
+Stage        Prec      Rec       F1      AUC
+---------------------------------------------
+Wake        0.707    0.633    0.668    0.953
+N1          0.385    0.609    0.472    0.903
+N2          0.915    0.804    0.856    0.941
+N3          0.806    0.899    0.850    0.983
+REM         0.794    0.827    0.810    0.962
+---------------------------------------------
+Macro                         0.731    0.949
+Weighted                      0.809
+=================================================================
+
+Overall Accuracy:  0.8014
+Cohen's Kappa:     0.7128
+MCC:               0.7161
+================================================================
