@@ -1,0 +1,144 @@
+{
+  "experiment": "005",
+  "name": "LOSO Cross-Subject Validation",
+  "date": "2026-07-23",
+  "validation_method": "Leave-One-Subject-Out",
+  "n_subjects": 20,
+  "results": {
+    "loso_accuracy": 0.7717,
+    "loso_kappa": 0.6721,
+    "mean_fold_acc": 0.7728,
+    "std_fold_acc": 0.0977,
+    "mean_fold_kappa": 0.6652
+  },
+  "vs_random_split": {
+    "random_accuracy": 0.8014,
+    "random_kappa": 0.7128,
+    "loso_accuracy": 0.7717,
+    "loso_kappa": 0.6721,
+    "accuracy_drop": 0.0297,
+    "kappa_drop": 0.0407
+  },
+  "per_fold": [
+    {
+      "subject": "SC4001",
+      "accuracy": 0.8377253814147018,
+      "kappa": 0.7823039543327853,
+      "n": 721
+    },
+    {
+      "subject": "SC4011",
+      "accuracy": 0.8423194303153612,
+      "kappa": 0.7551338876764196,
+      "n": 983
+    },
+    {
+      "subject": "SC4021",
+      "accuracy": 0.7204419889502762,
+      "kappa": 0.5804603914224933,
+      "n": 905
+    },
+    {
+      "subject": "SC4031",
+      "accuracy": 0.7560096153846154,
+      "kappa": 0.6262883290333716,
+      "n": 832
+    },
+    {
+      "subject": "SC4041",
+      "accuracy": 0.7094170403587444,
+      "kappa": 0.5665585642657376,
+      "n": 1115
+    },
+    {
+      "subject": "SC4051",
+      "accuracy": 0.8713768115942029,
+      "kappa": 0.8262504100795333,
+      "n": 552
+    },
+    {
+      "subject": "SC4061",
+      "accuracy": 0.8603042876901799,
+      "kappa": 0.7884255999721853,
+      "n": 723
+    },
+    {
+      "subject": "SC4071",
+      "accuracy": 0.8422897196261683,
+      "kappa": 0.7671100362756953,
+      "n": 856
+    },
+    {
+      "subject": "SC4081",
+      "accuracy": 0.8402366863905325,
+      "kappa": 0.7885675525047977,
+      "n": 1014
+    },
+    {
+      "subject": "SC4091",
+      "accuracy": 0.682806324110672,
+      "kappa": 0.5000607895251183,
+      "n": 1012
+    },
+    {
+      "subject": "SC4101",
+      "accuracy": 0.7672764227642277,
+      "kappa": 0.5804791045693105,
+      "n": 984
+    },
+    {
+      "subject": "SC4111",
+      "accuracy": 0.4381188118811881,
+      "kappa": 0.22267686902569728,
+      "n": 808
+    },
+    {
+      "subject": "SC4121",
+      "accuracy": 0.7618025751072961,
+      "kappa": 0.6426096419256214,
+      "n": 932
+    },
+    {
+      "subject": "SC4131",
+      "accuracy": 0.8248898678414097,
+      "kappa": 0.7431994236875106,
+      "n": 908
+    },
+    {
+      "subject": "SC4141",
+      "accuracy": 0.8823529411764706,
+      "kappa": 0.8270104279956496,
+      "n": 884
+    },
+    {
+      "subject": "SC4151",
+      "accuracy": 0.8088942307692307,
+      "kappa": 0.7303925864482982,
+      "n": 832
+    },
+    {
+      "subject": "SC4161",
+      "accuracy": 0.7041015625,
+      "kappa": 0.5840757551790794,
+      "n": 1024
+    },
+    {
+      "subject": "SC4171",
+      "accuracy": 0.746031746031746,
+      "kappa": 0.6394152324286835,
+      "n": 882
+    },
+    {
+      "subject": "SC4181",
+      "accuracy": 0.7251184834123223,
+      "kappa": 0.6119724785186594,
+      "n": 844
+    },
+    {
+      "subject": "SC4191",
+      "accuracy": 0.8353356890459364,
+      "kappa": 0.740796443896556,
+      "n": 1415
+    }
+  ]
+}

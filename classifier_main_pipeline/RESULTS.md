@@ -100,3 +100,26 @@ Overall Accuracy:  0.8014
 Cohen's Kappa:     0.7128
 MCC:               0.7161
 ================================================================
+
+## Experiment 003 — CNN-LSTM (Complete Evaluation)
+
+| Metric          | Value  | Context                    |
+|-----------------|--------|----------------------------|
+| Accuracy        | 80.14% | Best across 4 experiments  |
+| Cohen's Kappa   | 0.7128 | "Good" agreement           |
+| MCC             | 0.7161      |       
+| Macro F1        | 0.731      |       
+| REM F1          | 0.81      |       
+| REM AUC         | 0.962      |      
+
+### Benchmark comparison
+| Model              | Kappa | Year |
+|--------------------|-------|------|
+| DeepSleepNet       | 0.76  | 2017 |
+| **Our CNN-LSTM**  | **0.71** | 2026 |
+| AttnSleep          | 0.78  | 2021 |
+
+### Notes
+- Single channel (Fpz-Cz) vs multi-channel in benchmarks
+- 20 subjects vs 78 available in Sleep-EDF Cassette
+- Optimised for real-time BCI deployment, not benchmark
