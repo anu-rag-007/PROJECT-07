@@ -10,7 +10,7 @@
 # 2. Start Muse stream (in terminal):
 # muselsl stream
 
-# 3. In your Python script:
+# 3. In our Python script:
 from pylsl import StreamInlet, resolve_stream
 import numpy as np
 

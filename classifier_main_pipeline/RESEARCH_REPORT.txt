@@ -21,7 +21,7 @@ We present a closed-loop BCI pipeline for automated lucid
 dream induction using real-time EEG sleep stage classification.
 Our CNN-LSTM hybrid architecture achieves 0.7685 
 overall accuracy on the Sleep-EDF Cassette dataset (20 subjects,
-18,226 epochs), with REM F1-score of N/A.
+18,226 epochs), with 'REM' F1-score of N/A.
 The system triggers haptic stimulation upon REM detection,
 forming the classification backbone of LUCID: Reality? — 
 a long-term research initiative toward multi-user shared 
@@ -66,9 +66,9 @@ Experiment 002: CNN on EEG Spectrograms
   REM Recall:  0.6578
 
 Experiment 003: CNN-LSTM Hybrid
-  Accuracy:    0.0000
+  Accuracy:    0.8014
   REM F1:      N/A
-  REM Recall:  N/A
+  REM Recall:  0.8269
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
