@@ -1,7 +1,7 @@
 {
   "experiment": "001",
   "name": "SleepLSTM Baseline",
-  "date": "2026-07-12",
+  "date": "2026-07-30",
   "model": "SleepLSTM",
   "dataset": "Sleep-EDF Cassette (20 subjects)",
   "total_epochs": 18226,
