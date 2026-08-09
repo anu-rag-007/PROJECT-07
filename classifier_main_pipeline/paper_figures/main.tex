@@ -32,11 +32,11 @@ on Single-Channel EEG}
 Science and Engineering (AI \& ML), Galgotias University,
 Greater Noida, India.
 E-mail: sharma.anurag0706@gmail.com}
-\thanks{Manuscript received 04-08-2026 ; revised 06-08-2026.}}
+\thanks{Manuscript received 04-08-2026 ; revised 09-08-2026.}}
 
 \markboth{IEEE TRANSACTIONS ON NEURAL SYSTEMS AND
-REHABILITATION ENGINEERING,~VOL.~01,
-NO.~01,~04-08-2026}{}
+REHABILITATION ENGINEERING,~VOL.~XX,
+NO.~XX,~XXXX}{}
 
 \maketitle
 
@@ -55,12 +55,10 @@ short-term memory (LSTM) network to model temporal
 transitions across the epoch.
 Trained on the Sleep-EDF Extended dataset
 (153 recordings) with balanced class weighting,
-our system achieves 80.14\% overall accuracy
-($\kappa$=0.71) under stratified random-split
-evaluation and 77.17\% ($\kappa$=0.67) under
-leave-one-subject-out (LOSO) cross-validation,
-comparable to DeepSleepNet while operating on
-a single EEG channel.
+our system achieves 75.59\% overall accuracy ($\kappa$=0.68) 
+on the full 153-recording Sleep-EDF Extended dataset 
+and 77.17\% ($\kappa$=0.67) under leave-one-subject-out 
+(LOSO) cross-validation on a 20-subject subset.
 The REM F1-score of 0.81 enables reliable closed-loop
 haptic stimulation upon REM detection, validated
 through direct integration with an Android device.
@@ -410,14 +408,17 @@ DeepSleepNet~\cite{supratak2017} & 1 & 0.82 & 0.69 \\
 AttnSleep~\cite{eldele2021}    & 1 & 0.83 & 0.78 \\
 SeqSleepNet~\cite{phan2019}    & 2 & 0.87 & 0.83 \\
 \midrule
-\textbf{Ours (CNN-LSTM)}
-& \textbf{1} & \textbf{0.80} & \textbf{0.67}$^\dagger$ \\
+\textbf{Ours (CNN-LSTM)} & \textbf{1} & 
+0.76$^\ddagger$ / 0.76 & 0.67$^\dagger$ / 0.68$^\S$ \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \small
 \item $\dagger$ LOSO on 20 subjects.
 Single-channel EEG Fpz-Cz throughout.
+\item $\dagger$ LOSO, 20 subjects (SC only).
+\item $\S$ Random split, 153 subjects (SC+ST).
+\item $\ddagger$ Random split, 20 subjects.
 \end{tablenotes}
 \end{table}
 
