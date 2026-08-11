@@ -12,6 +12,8 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{balance}
+\usepackage{float}
+\usepackage{placeins}
 
 \hypersetup{
     colorlinks=true,
@@ -32,7 +34,7 @@ on Single-Channel EEG}
 Science and Engineering (AI \& ML), Galgotias University,
 Greater Noida, India.
 E-mail: sharma.anurag0706@gmail.com}
-\thanks{Manuscript received 04-08-2026 ; revised 09-08-2026.}}
+\thanks{Manuscript received 04-08-2026 ; revised 11-08-2026.}}
 
 \markboth{IEEE TRANSACTIONS ON NEURAL SYSTEMS AND
 REHABILITATION ENGINEERING,~VOL.~XX,
@@ -172,6 +174,7 @@ open-source EEG-guided adaptive stimulation system
 targeting lucid dream induction.
 
 % ─────────────────────────────────────────────────────────
+\FloatBarrier
 \section{Methods}
 \label{sec:methods}
 
@@ -199,6 +202,24 @@ non-Wake annotation were excluded to focus on the
 sleep period.
 Unknown-stage and movement-time epochs were discarded.
 
+Fig.~\ref{fig:eeg_stages} illustrates the EEG 
+characteristics and spectrogram patterns 
+distinguishing each sleep stage.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_figures/fig6_eeg_stages.png}
+\caption{EEG signal characteristics per sleep stage. 
+(a) Raw single-channel EEG (Fpz-Cz, 30 seconds). 
+(b) Time-frequency spectrograms showing dominant 
+frequency bands: delta ($<$4\,Hz) in N3, theta 
+(4--8\,Hz) in REM, and sleep spindles (12--15\,Hz) 
+in N2. (c) Representative hypnogram illustrating 
+typical 8-hour sleep architecture with alternating 
+NREM-REM cycles.}
+\label{fig:eeg_stages}
+\end{figure}
+
 \textbf{Dataset statistics.}
 Table~\ref{tab:dataset} summarises the resulting
 epoch distribution.
@@ -222,13 +243,23 @@ Total & 177,411     & 100.0 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_figures/fig2_dataset.png}
+\caption{Sleep-EDF Extended dataset statistics. 
+(a) Stage distribution compared to AASM reference 
+ranges. (b) Recording length distribution across 
+153 subjects (mean: [fill] epochs per recording).}
+\label{fig:dataset}
+\end{figure}
+
 \subsection{CNN-LSTM Architecture}
 
 Fig.~\ref{fig:architecture} illustrates the proposed
 architecture.
-\begin{figure}[t]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\columnwidth]{fig1_architecture}
+\includegraphics[width=\columnwidth]{paper_figures/fig1_architecture.png}
 \caption{CNN-LSTM hybrid architecture for EEG sleep
 stage classification. Each 30-second epoch is divided
 into ten 3-second windows processed by a shared CNN
@@ -362,6 +393,12 @@ Table~\ref{tab:results} reports per-class metrics
 for the proposed CNN-LSTM under both evaluation
 protocols.
 
+ROC curves and per-class AUC values are shown in 
+Fig.~\ref{fig:roc}. The macro-average AUC of 0.95 
+confirms strong discriminative ability across all 
+sleep stages, with N3 achieving near-perfect 
+separation (AUC=0.98)
+
 \begin{table}[h]
 \caption{Per-Class Results -- CNN-LSTM Hybrid}
 \label{tab:results}
@@ -390,10 +427,48 @@ Weighted & 0.82 & 0.80 & 0.81 & -- \\
 \end{tabular}
 \end{table}
 
+Fig.~\ref{fig:confusion} shows the confusion matrices
+for the proposed model. The normalised matrix reveals
+that N3 achieves the highest recall (0.90), while N1
+presents the greatest challenge (recall=0.61) due to
+its transitional EEG characteristics.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_figures/fig3_confusion_matrix.png}
+\caption{Confusion matrices for the proposed CNN-LSTM 
+hybrid. (a) Raw epoch counts. (b) Normalised by true 
+class (recall). Diagonal entries represent correctly 
+classified epochs. N1 exhibits the highest confusion 
+rate due to its brief duration and spectral overlap 
+with Wake and N2.}
+\label{fig:confusion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_figures/fig4_roc_curves.png}
+\caption{Receiver operating characteristic (ROC) 
+curves and per-class AUC (Area Under Curve) for the CNN-LSTM hybrid 
+(one-vs-rest). N3 achieves the highest AUC (0.98), 
+reflecting its distinctive delta-wave signature. 
+N1 achieves the lowest AUC (0.90) consistent with 
+its classification difficulty.}
+\label{fig:roc}
+\end{figure}
+
 \subsection{Benchmark Comparison}
 
 Table~\ref{tab:benchmarks} compares our LOSO
 $\kappa$ with published methods on Sleep-EDF.
+
+Fig.~\ref{fig:benchmarks} contextualises our results
+against published methods. While our $\kappa$=0.67 
+falls below SeqSleepNet (0.83) which uses two 
+channels, it is comparable to DeepSleepNet (0.69) 
+on single-channel EEG, with the important distinction 
+that our model targets real-time BCI deployment 
+rather than offline benchmark performance.
 
 \begin{table}[h]
 \caption{Comparison with Published Methods (Sleep-EDF)}
@@ -421,6 +496,18 @@ Single-channel EEG Fpz-Cz throughout.
 \item $\ddagger$ Random split, 20 subjects.
 \end{tablenotes}
 \end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{paper_figures/fig5_benchmarks.png}
+\caption{Comparison of classification accuracy and 
+Cohen's $\kappa$ against published methods on 
+Sleep-EDF. Our model (highlighted in orange) achieves 
+competitive performance using single-channel EEG 
+without post-processing, in contrast to multi-channel 
+approaches.}
+\label{fig:benchmarks}
+\end{figure}
 
 \subsection{Closed-Loop Validation}
 
@@ -507,11 +594,9 @@ through classification to physical haptic output
 component of LUCID: Reality?, a long-term initiative
 toward multi-user shared dream interfaces.
 
-Future work will expand evaluation to the full
-153-recording Sleep-EDF Extended dataset, integrate
-a consumer EEG headband for real-time validation,
-and measure lucid dream induction efficacy through
-a prospective sleep study.
+Future work includes real-time validation with a 
+consumer EEG headband and a prospective study 
+measuring lucid dream induction efficacy.
 
 % ─────────────────────────────────────────────────────────
 \appendix
