@@ -1,5 +1,7 @@
 ## **# Project 07 — Classifier Main Pipeline**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21885881.svg)](https://doi.org/10.5281/zenodo.21885881)
+
 ## 
 
 > First component of **\*\*LUCID: Reality?\*\*** — a **closed-loop BCI** 
@@ -197,4 +199,21 @@ collaboratively generated world during **REM** sleep.
 **Anurag Sharma — B.Tech CSE (AI\&ML),**
 
 **Started Building the foundation of "LUCID: Reality?" in 1st Semester.**
+
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@misc{sharma2026lucid,
+  author    = {Sharma, Anurag},
+  title     = {Automated Sleep Stage Classification 
+               for Closed-Loop Lucid Dream Induction 
+               via CNN-LSTM on Single-Channel EEG},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21885881},
+  url       = {https://doi.org/10.5281/zenodo.21885881}
+}
+```
 
