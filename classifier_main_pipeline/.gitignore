@@ -3,6 +3,7 @@ data/
 *.edf
 *.npy
 *.csv
+*.zip
 
 # ── Trained models ────────────────────────────────────────
 models/*.pth
