@@ -1,0 +1,24 @@
+{
+  "experiment": "THINGS-EEG Alignment",
+  "date": "2026-09-04",
+  "dataset": "THINGS-EEG (preprocessed)",
+  "model": "EEGAlignmentMLP",
+  "eeg_dim": 1700,
+  "clip_dim": 512,
+  "hidden_dim": 1024,
+  "n_train": 1654,
+  "n_test": 200,
+  "epochs": 100,
+  "loss": "InfoNCE (temperature=0.07)",
+  "results": {
+    "best_top5": 0.035,
+    "final_top1": 0.005,
+    "final_top5": 0.025,
+    "final_top10": 0.03
+  },
+  "chance_levels": {
+    "top1": 0.005,
+    "top5": 0.025,
+    "top10": 0.05
+  }
+}

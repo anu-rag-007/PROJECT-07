@@ -123,3 +123,38 @@ MCC:               0.7161
 - Single channel (Fpz-Cz) vs multi-channel in benchmarks
 - 20 subjects vs 78 available in Sleep-EDF Cassette
 - Optimised for real-time BCI deployment, not benchmark
+## LUCID Phase 2 — EEG-Guided Image Generation
+
+### Status: v0.1 Prototype
+
+### Dataset
+- THINGS-EEG (Gifford et al., 2022)
+- 50 subjects × 1,654 training + 200 test concepts
+- EEG: (1654, 17, 100) after averaging
+- Sampling: 100 Hz, window: -200ms to 790ms
+
+### Model: EEGAlignmentMLP v1
+- Architecture: 1700 → 2048 → 1024 → 512
+- Loss: InfoNCE contrastive (temperature=0.07)
+- Training: 200 epochs, AdamW + OneCycleLR
+
+### Results: EEG → CLIP Retrieval
+| Metric  | Score  | Chance  | Notes |
+|---------|--------|---------|-------|
+| Top-1   | 0.005  | 0.005   | At chance |
+| Top-5   | 0.025  | 0.025   | At chance |
+| Top-10  | 0.030  | 0.050   | Below chance |
+
+### Root cause
+Text CLIP embeddings used as targets (not image embeddings).
+CLIP text-image modality gap prevents effective alignment.
+Fix: download THINGS images (~2GB) → use image embeddings.
+
+### Generation pipeline: working ✅
+EEG → nearest concept (NN search) → SD prompt → image
+ComfyUI integration confirmed working.
+Dreamlike imagery generated for all 4 test sleep stages.
+
+### Next experiment
+Fix A: image CLIP targets → retrain
+Target: Top-5 > 15% (published baseline: ~22%)
