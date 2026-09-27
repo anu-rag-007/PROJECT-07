@@ -1,0 +1,37 @@
+{
+  "experiment": "Phase2_v2_ImageCLIPTargets",
+  "date": "2026-09-26",
+  "eeg_shape": [
+    1654,
+    17,
+    100
+  ],
+  "clip_shape": [
+    1654,
+    512
+  ],
+  "discriminability": {
+    "text_mean_sim": 0.7131,
+    "image_mean_sim": 0.5292,
+    "improvement": 1.35
+  },
+  "results": {
+    "Image CLIP": {
+      "top5": 0.04500000178813934,
+      "vs_chance": 1.8
+    },
+    "Mixed (70% img)": {
+      "top5": 0.029999999329447746,
+      "vs_chance": 1.2
+    },
+    "Image CLIP T=0.03": {
+      "top5": 0.03999999910593033,
+      "vs_chance": 1.6
+    }
+  },
+  "baseline_text_clip": {
+    "top5": 0.035,
+    "vs_chance": 1.4
+  },
+  "notes": "Image targets 1.3x more discriminative. Modest improvement expected. Pipeline contribution is primary novelty."
+}
