@@ -1,0 +1,1 @@
+=== Individual Subject Training ===\nStarted training run\nTrain: (165400, 17, 100)\nTest:  (2000, 17, 100)\n

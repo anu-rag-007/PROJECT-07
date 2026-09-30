@@ -1,0 +1,30 @@
+{
+  "experiment": "Phase2_v3_63ch_ATM",
+  "date": "2026-09-28",
+  "eeg_shape": [
+    1654,
+    64,
+    100
+  ],
+  "n_channels": 64,
+  "results": {
+    "63ch_best_top5": 0.035,
+    "17ch_best_top5": 0.045,
+    "improvement": -0.01,
+    "vs_chance": 1.4
+  },
+  "channel_importance": {
+    "Temporal": 0.3767,
+    "Frontal": 0.3536,
+    "Parietal": 0.3398,
+    "Central": 0.3323,
+    "Occipital": 0.3217,
+    "Other": 0.2638
+  },
+  "findings": [
+    "P3 most important in 17-ch (parietal/P300)",
+    "Parietal most important in 63-ch",
+    "baton4\u2192blowtorch: shape similarity captured",
+    "Median rank=100 at 17-ch (chance level)"
+  ]
+}
