@@ -1,18 +1,19 @@
-% LUCID Phase 2 — Paper Draft
+% EEG-to-CLIP Alignment on THINGS-EEG — Paper Draft
 % Target: NeurIPS ML4H Workshop or IEEE EMBC
 % Author: Anurag Sharma, Galgotias University
 
 \documentclass[conference]{IEEEtran}
 \usepackage{amsmath,graphicx,booktabs,xcolor}
-\usepackage{float}          % Enables [H] placement for figures & tables
-\usepackage{placeins}       % Provides \FloatBarrier to enforce float ordering
+\usepackage{float}
+\usepackage{placeins}
 \usepackage{hyperref}
+\usepackage{cite}
 
 \begin{document}
 
-\title{Towards Dream Imagery Reconstruction:\\
-EEG-Guided Latent Diffusion via ATM Alignment\\
-for REM Sleep Applications}
+\title{Contrastive EEG-to-CLIP Alignment on THINGS-EEG:\\
+An Ablation of Target Modality, Temperature,\\
+and Channel Count}
 
 \author{
   \IEEEauthorblockN{Anurag Sharma}
@@ -28,86 +29,122 @@ for REM Sleep Applications}
 
 % ──────────────────────────────────────────────
 \begin{abstract}
-We present the second phase of LUCID: Reality?,
-a long-term initiative toward artificial reality
-through the dream interface. Building on our
-previously published CNN-LSTM sleep staging
-system ($\kappa$=0.68, Sleep-EDF Extended,
-153 recordings), we develop an EEG-guided image
-generation pipeline targeting the REM sleep state.
-Using the THINGS-EEG dataset (50 subjects,
-1,654 training concepts), we train an
-Attention-based Temporal-spatial Model (ATM)
-encoder to align 17-channel EEG representations
-with CLIP image embeddings via InfoNCE contrastive
-learning. Our best configuration achieves
-Top-5 retrieval accuracy of 4.5\% (1.8$\times$
-chance) on 200 held-out test concepts.
-We demonstrate that image CLIP targets
-outperform text-based targets, that mixing
-target modalities degrades performance, and
-that EEG captures low-level visual shape
-features (evidenced by semantically proximate
-retrieval errors). A complete generation
-pipeline—EEG epoch → ATM encoder → CLIP
-embedding → Stable Diffusion—is demonstrated,
-producing semantically coherent imagery from
-EEG-derived embeddings. To our knowledge, this
-is the first system to integrate automated
-REM sleep detection with EEG-conditioned
-image generation in a closed-loop BCI pipeline.
+We study the alignment of electroencephalography
+(EEG) signals with pretrained CLIP embeddings
+on the THINGS-EEG benchmark. Our contributions
+are threefold. First, we present an
+attention-based temporal-spatial encoder that
+maps 17-channel EEG epochs to 512-dimensional
+CLIP-compatible embeddings via bidirectional
+InfoNCE contrastive loss. Second, we conduct
+a systematic ablation over the contrastive
+target modality (text CLIP vs.\ image CLIP
+vs.\ a mixture), the training temperature
+$\tau$, and the input channel count
+(17 vs.\ 63). We find that image CLIP targets
+outperform text targets, that mixing the two
+modalities degrades performance below either
+alone, and that expanding from 17 to 63
+channels reduces accuracy under fixed
+training-pair budget, implicating data scale
+as the primary bottleneck. Our best
+configuration attains a Top-5 retrieval
+accuracy of 4.5\% on 200 held-out concepts
+(1.8$\times$ the 2.5\% chance rate), a weak
+but non-trivial alignment signal that we
+characterise carefully with respect to
+statistical significance. Third, we perform
+a post-hoc channel-importance analysis of
+the learned attention gates, finding that
+the left parietal electrode P3 receives
+the highest weight, consistent with the
+P300 event-related potential and its
+association with attentional salience.
+We do not attempt image \emph{reconstruction}:
+EEG embeddings are used for nearest-concept
+\emph{retrieval} only, and image synthesis is
+demonstrated by conditioning Stable Diffusion
+on the retrieved concept's text label rather
+than on EEG features directly. An extension
+of this retrieval pipeline to sleep-EEG
+settings is outlined as future work.
 \end{abstract}
 
 \begin{IEEEkeywords}
-EEG, neural decoding, CLIP, diffusion models,
-brain-computer interface, REM sleep, lucid
-dreaming, contrastive learning, ATM
+EEG, neural decoding, CLIP, contrastive
+learning, brain-computer interface,
+attention mechanism, retrieval
 \end{IEEEkeywords}
 
 % ──────────────────────────────────────────────
 \section{Introduction}
 
-Reconstructing visual imagery from brain signals
-has advanced rapidly with fMRI-based systems
-achieving compelling results~\cite{takagi2023,
-mindvis2023}. However, fMRI requires clinical
-infrastructure, precluding deployment in
-naturalistic sleep settings. Electroencephalography
-(EEG) offers a wearable alternative at the cost
-of spatial resolution and signal-to-noise ratio.
+Decoding visual content from human brain
+activity has advanced rapidly in recent years,
+with fMRI-based systems producing
+high-fidelity reconstructions of viewed
+images~\cite{takagi2023,mindvis2023}.
+However, fMRI requires clinical
+infrastructure, which precludes deployment
+in naturalistic or longitudinal settings.
+Electroencephalography (EEG) offers a
+wearable alternative at the cost of
+substantially lower spatial resolution and
+signal-to-noise ratio.
 
-Prior EEG decoding work targets the \emph{awake}
-visual response: subjects view images while EEG
-is recorded, and models learn to retrieve or
-reconstruct the viewed image~\cite{scotti2023}.
-We address a fundamentally different problem:
-decoding visual content from \emph{REM sleep},
-where imagery is internally generated rather
-than externally driven, and where signal
-characteristics differ substantially from
-visual evoked potentials.
+Prior EEG decoding work has focused on the
+\emph{awake} visual response: subjects view
+images while EEG is recorded, and models are
+trained to retrieve or reconstruct the viewed
+image~\cite{scotti2023}. The dominant
+technique is contrastive alignment to a
+pretrained vision-language embedding, such
+as CLIP~\cite{radford2021}, which provides
+a semantically structured target space
+without requiring a decoder. However, the
+practical performance of these systems is
+sensitive to several design choices ---
+target modality, contrastive temperature,
+input channel count, and available training
+data --- that have not been systematically
+ablated in the published literature.
 
-Our contributions are:
+\textbf{Contributions.}
+We present an ablation study of these design
+choices on the THINGS-EEG
+benchmark~\cite{gifford2022}. Specifically:
+
 \begin{enumerate}
-  \item An end-to-end pipeline connecting automated
-  sleep staging (Phase 1, previously published)
-  with EEG-guided image generation (Phase 2).
+  \item We describe an attention-based
+  temporal-spatial EEG encoder that projects
+  17-channel EEG epochs into CLIP-compatible
+  512-dimensional embeddings.
 
-  \item An ablation study of CLIP target
-  modalities (text vs.\ image), training
-  temperatures, and channel counts on the
-  THINGS-EEG benchmark.
+  \item We ablate five training configurations
+  spanning target modality (text CLIP, image
+  CLIP, mixture), contrastive temperature
+  ($\tau \in \{0.03, 0.05, 0.07\}$), and
+  input channel count (17 vs.\ 63), reporting
+  Top-1, Top-5, and Top-10 retrieval accuracy
+  on 200 held-out concepts.
 
-  \item Evidence that EEG encodes low-level
-  visual shape information, with retrieval
-  errors showing shape-preserving concept
-  substitution (e.g., baton $\rightarrow$
-  blowtorch).
+  \item We provide a statistical analysis of
+  the best configuration against the chance
+  baseline and identify data scale --- not
+  architecture --- as the dominant limiting
+  factor.
 
-  \item A demonstration that temporal cortex
-  channels carry object-identity information
-  in EEG recorded during visual stimulation,
-  consistent with the ventral visual stream.
+  \item We analyse the learned channel-attention
+  gates and find that P3 (left parietal)
+  carries the largest gate weight, consistent
+  with the P300 ERP component and prior
+  findings on attentional salience.
+
+  \item We outline an extension of the retrieval
+  pipeline to sleep-EEG settings as future
+  work, explicitly noting that reconstruction
+  of dream imagery is \emph{not} attempted in
+  this paper.
 \end{enumerate}
 
 % ──────────────────────────────────────────────
@@ -117,106 +154,106 @@ Our contributions are:
 Scotti et al.~\cite{scotti2023} demonstrated
 EEG-to-image retrieval on THINGS-EEG using
 contrastive alignment, achieving approximately
-22\% Top-5 accuracy using individual-subject
-EEG and GPU-scale batch training. Our work
-differs in three respects: (1) we target the
-REM sleep state rather than awake visual
-stimulation; (2) we provide a systematic
-ablation of target modality and training
-temperature; (3) we integrate retrieval with
-a generation pipeline producing novel imagery.
+22\% Top-5 accuracy when training on
+individual-subject EEG with GPU-scale batch
+sizes. Their result establishes an upper
+bound for the present study. Our work differs
+in scope rather than in method: we do not
+attempt to match this benchmark, and we
+explicitly study how performance degrades
+when training data is reduced through
+subject-averaging, as required by
+CPU-only training environments.
 
 \subsection{Contrastive EEG Alignment}
 CLIP~\cite{radford2021} demonstrated that
 text and image representations can be aligned
 in a shared embedding space via contrastive
-learning on paired data. We apply this
-principle to (EEG, image) pairs, using CLIP
-image embeddings as fixed targets and training
-only the EEG encoder.
+learning on paired data. This formulation
+has since been applied to a wide range of
+non-visual modalities, including EEG. We
+adopt the standard bidirectional InfoNCE
+formulation and treat the CLIP image
+embeddings as fixed targets, training only
+the EEG encoder.
 
-\subsection{ATM Architecture}
-The Attention-based Temporal-spatial Model
-(ATM)~\cite{atm2024} processes EEG by applying
-channel-wise attention over independently
-embedded electrode tokens, followed by temporal
-and spatial convolution to capture multi-scale
-patterns. We adopt this architecture for its
-interpretable attention maps, which reveal
-electrode contributions to the learned
-representation.
+\subsection{Attention-based EEG Encoders}
+Transformers~\cite{vaswani2017} and their
+attention variants have become the default
+architecture for sequence modelling in EEG
+decoding. Our encoder applies multi-head
+self-attention across channel tokens, a
+temporal-spatial convolutional branch to
+capture event-related dynamics, and a
+gating mechanism that exposes per-channel
+importance weights for post-hoc
+interpretation. Related channel-attention
+formulations have been explored for
+sleep staging and motor imagery; we
+adapt the pattern to the image-retrieval
+task.
 
 % ──────────────────────────────────────────────
 \section{Methods}
 
-\subsection{Phase 1: Sleep Stage Classification}
-We use our previously published CNN-LSTM
-classifier~\cite{sharma2026} trained on the
-Sleep-EDF Extended dataset (153 recordings,
-177,411 epochs). The classifier achieves
-$\kappa$=0.68 under random split and
-$\kappa$=0.67 under leave-one-subject-out
-(LOSO) validation on a 20-subject subset.
-REM detection ($F_1$=0.81) triggers the
-Phase 2 generation pipeline via a four-condition
-safety interlock: $P(\text{REM}) > 0.6$,
-sustained $\geq$30\,s, no Wake in prior 60\,s,
-and 300\,s cooldown.
-
 \subsection{Dataset: THINGS-EEG}
 We use the THINGS-EEG dataset~\cite{gifford2022},
 comprising EEG recordings from 50 subjects
-viewing 1,654 training and 200 test images
+viewing 1{,}654 training and 200 test images
 from the THINGS object concept
-database~\cite{things2019}.
-Preprocessed data provides 17-channel EEG
-epochs at 100\,Hz covering $-$200\,ms to
-790\,ms relative to image onset, with
-80 repetitions per concept per subject.
+database~\cite{things2019}. Preprocessed
+data provides 17-channel EEG epochs at
+100\,Hz covering $-$200\,ms to 790\,ms
+relative to image onset, with 80 repetitions
+per concept per subject.
 
 \textbf{Preprocessing.}
-We average across all 80 repetitions per
-concept per subject, then average across
-subjects, yielding one clean EEG epoch per
-concept: $(1654, 17, 100)$ training and
-$(200, 17, 100)$ test. Each channel is
-independently normalised to zero mean and
-unit variance.
+For each subject and each concept, we average
+across the 80 repetitions, and then average
+across the 50 subjects, yielding one clean
+EEG epoch per concept: $(1654, 17, 100)$ for
+training and $(200, 17, 100)$ for test.
+Each channel is independently normalised to
+zero mean and unit variance. Subject-averaging
+is a computational necessity for our CPU-only
+training environment; its effect on
+performance is discussed in
+Section~\ref{sec:disc}.
 
-\subsection{ATM EEG Encoder}
+\subsection{EEG Encoder}
 
 \textbf{Channel embedding.}
 Each of the 17 EEG channels (100 timepoints)
-is projected independently via a shared linear
-layer to a $d_\text{model}$=128 dimensional
-token, producing a sequence of channel tokens
-$(B, 17, 128)$.
+is projected independently via a shared
+linear layer to a $d_\text{model}{=}128$-dimensional
+token, producing a sequence of channel
+tokens with shape $(B, 17, 128)$.
 
 \textbf{Channel-wise attention.}
-Multi-head self-attention (4 heads) is applied
-across the 17 channel tokens. A gating mechanism
-produces per-channel importance weights,
-enabling post-hoc interpretation of electrode
+Multi-head self-attention (4 heads) is
+applied across the 17 channel tokens. A
+sigmoid gating mechanism produces
+per-channel importance weights, enabling
+post-hoc interpretation of electrode
 contributions.
 
 \textbf{Temporal-spatial convolution.}
 Two parallel convolutional paths capture
 complementary structure: a temporal path
 (Conv1D across time within each channel,
-kernel 15) capturing ERP dynamics; and a
-spatial path (Conv1D across channels at each
-timepoint, kernel 5) capturing electrode
-co-activation patterns. Their outputs are
-fused via a linear layer.
+kernel size 15) capturing ERP dynamics,
+and a spatial path (Conv1D across channels
+at each timepoint, kernel size 5) capturing
+electrode co-activation patterns. The two
+paths are fused via a linear layer.
 
 \textbf{Aggregation and projection.}
-Channel-attended and temporal-spatial
-representations are concatenated and projected
-to a 512-dimensional CLIP-compatible embedding,
-which is L2-normalised.
-
-The complete ATM encoder contains 626,449
-trainable parameters.
+The channel-attended representation and
+the temporal-spatial representation are
+concatenated and projected to a
+512-dimensional CLIP-compatible embedding,
+which is L2-normalised. The encoder contains
+626{,}449 trainable parameters.
 
 \subsection{CLIP Target Computation}
 
@@ -224,22 +261,22 @@ For each training concept, we compute a CLIP
 image embedding~\cite{radford2021} by loading
 all available images from the corresponding
 THINGS concept folder, computing the CLIP
-ViT-B/32 image feature for each, and averaging
-across images before re-normalisation. This
-produces a robust prototype embedding per
-concept. Mean inter-concept cosine similarity
-is 0.529 for image targets, compared to 0.713
-for text-based targets of the form
+ViT-B/32 image feature for each, and
+averaging across images before
+re-normalisation. This yields a robust
+prototype embedding per concept. The mean
+inter-concept cosine similarity is 0.529
+for image targets, compared with 0.713 for
+text-based targets of the form
 \texttt{``a photo of a \{concept\}''}, confirming
-that image targets are more discriminative.
+that image targets provide a more
+discriminative learning signal.
 
 \subsection{Training}
 
 \textbf{Loss function.}
-We use InfoNCE contrastive loss with temperature
-$\tau$=0.05, applied bidirectionally between
-EEG embeddings and CLIP image targets within
-each mini-batch:
+We use bidirectional InfoNCE contrastive loss
+with temperature $\tau$:
 \begin{equation}
 \mathcal{L} = -\frac{1}{2N}\sum_{i=1}^{N}
 \left[
@@ -254,65 +291,73 @@ each mini-batch:
 \right]
 \end{equation}
 where $\mathbf{z}_i$ is the normalised EEG
-embedding and $\mathbf{c}_i$ is the normalised
-CLIP image embedding for concept $i$.
+embedding and $\mathbf{c}_i$ is the
+normalised CLIP image embedding for concept
+$i$ within the mini-batch.
 
-\textbf{Optimiser.}
+\textbf{Optimiser and schedule.}
 AdamW with weight decay 0.05, OneCycleLR
-schedule (peak lr $5 \times 10^{-4}$,
-10\% warmup), 200 epochs, batch size 128.
-EEG augmentation: Gaussian noise
-($\sigma$=0.08), random channel dropout
-(2--3 channels, $p$=0.25), and temporal
-shift ($\pm$3 timepoints, $p$=0.30).
+schedule (peak learning rate
+$5 \times 10^{-4}$, 10\% warmup),
+200 epochs, batch size 128.
+EEG augmentation during training: additive
+Gaussian noise ($\sigma{=}0.08$), random
+channel dropout (2--3 channels, $p{=}0.25$),
+and temporal shift ($\pm 3$ timepoints,
+$p{=}0.30$).
 
-\subsection{Generation Pipeline}
+\subsection{Retrieval Protocol}
+At evaluation, each of the 200 test EEG
+epochs is encoded to a 512-dimensional
+embedding, and cosine similarity is computed
+against the 200 test-concept CLIP embeddings.
+We report Top-1, Top-5, and Top-10 accuracy,
+with the chance rates $1/200$, $5/200$, and
+$10/200$ respectively. All reported accuracies
+are on the held-out test concepts.
 
-Upon ATM encoding, the EEG embedding is
-compared against all 1,654 training concept
-embeddings via cosine similarity to retrieve
-the nearest concept. A text prompt is
-constructed from the concept name and passed
-to Stable Diffusion v1.5~\cite{rombach2022}
-running locally via ComfyUI, producing a
-512$\times$512 pixel image. In the closed-loop
-deployment, this generation is triggered upon
-REM detection by the Phase 1 classifier.
+Fig.~\ref{fig:pipeline} illustrates the
+overall pipeline.
 
-Fig.~\ref{fig:pipeline} illustrates the complete
-Phase 2 pipeline.
-
+% ── FLOAT 1: FIGURE 1 ──
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{phase2/fig1_pipeline}
-\caption{Phase 2 closed-loop pipeline.
-EEG epochs from the Phase~1 REM detector are encoded
-by the ATM into a 512-dimensional CLIP-compatible
-embedding. Cosine similarity retrieves the nearest
-training concept, whose name conditions Stable
-Diffusion v1.5 to generate a 512$\times$512 dream
-image.}
+\caption{Overview of the EEG-to-CLIP retrieval
+pipeline. EEG epochs are encoded by the
+proposed attention-based temporal-spatial
+encoder into a 512-dimensional CLIP-compatible
+embedding, and retrieved by cosine similarity
+against the CLIP embeddings of the 200 test
+concepts. Image synthesis, shown for
+illustration only, is conditioned on the
+retrieved concept's \emph{text} label, not
+on the EEG embedding directly.}
 \label{fig:pipeline}
 \end{figure*}
-\FloatBarrier   
+\FloatBarrier
 % ── END FLOAT 1 ──
 
 % ──────────────────────────────────────────────
 \section{Experiments}
 
-\subsection{Ablation: CLIP Target Type}
-
+\subsection{Ablation: Target Modality and Temperature}
 
 Table~\ref{tab:ablation} reports Top-5
 retrieval accuracy on the 200 test concepts
-under five experimental conditions.
+under five experimental conditions. All
+configurations use the same encoder, optimiser,
+and training schedule; only the target
+modality, temperature, or channel count
+varies.
 
 % ── FLOAT 2: TABLE 1 ──
 \begin{table}[H]
 \centering
-\caption{Ablation: CLIP target modality and
-training temperature. Test set: 200 THINGS-EEG
-concepts. Chance Top-5 = 0.025.}
+\caption{Ablation over target modality,
+contrastive temperature, and channel count.
+Test set: 200 THINGS-EEG concepts. Chance
+Top-5 = 0.025. Best configuration in bold.}
 \label{tab:ablation}
 \begin{tabular}{lcc}
 \toprule
@@ -322,14 +367,11 @@ concepts. Chance Top-5 = 0.025.}
 \midrule
 Chance & 0.025 & 1.0$\times$ \\
 \midrule
-Text CLIP, $\tau$=0.07 & 0.035 & 1.4$\times$ \\
-Mixed (70\% img), $\tau$=0.05
-  & 0.030 & 1.2$\times$ \\
-Image CLIP, $\tau$=0.03 & 0.040 & 1.6$\times$ \\
-\textbf{Image CLIP, $\tau$=0.05}
-  & \textbf{0.045} & \textbf{1.8$\times$} \\
-Image CLIP, 63-ch, $\tau$=0.05
-  & 0.035 & 1.4$\times$ \\
+Text CLIP, $\tau{=}0.07$ & 0.035 & 1.4$\times$ \\
+Mixed (70\% img), $\tau{=}0.05$ & 0.030 & 1.2$\times$ \\
+Image CLIP, $\tau{=}0.03$ & 0.040 & 1.6$\times$ \\
+\textbf{Image CLIP, $\tau{=}0.05$} & \textbf{0.045} & \textbf{1.8$\times$} \\
+Image CLIP, 63-ch, $\tau{=}0.05$ & 0.035 & 1.4$\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -337,68 +379,72 @@ Image CLIP, 63-ch, $\tau$=0.05
 
 Image targets outperform text targets by
 0.010 Top-5 accuracy (28.6\% relative),
-consistent with higher inter-concept
-discriminability (mean similarity 0.529
-vs.\ 0.713). Mixing text embeddings
-\emph{reduces} performance below the text-only
-baseline, suggesting that text and image CLIP
-representations occupy sufficiently distinct
-regions of embedding space that their mixture
-introduces noise rather than combining signal.
+consistent with their higher inter-concept
+discriminability (mean cosine similarity
+0.529 vs.\ 0.713). Mixing the two target
+modalities \emph{reduces} performance below
+the text-only baseline, suggesting that text
+and image CLIP representations occupy
+sufficiently distinct regions of embedding
+space that their mixture introduces noise
+rather than combining signal.
 
-Increasing channel count from 17 to 63 reduces
-performance under our training regime, as the
-expanded input dimensionality (6,300 vs.\
-1,700 features) cannot be constrained by 1,654
-training pairs, leading to training instability.
-This identifies data scale as the primary
-bottleneck.
+Increasing the channel count from 17 to 63
+reduces performance under our fixed
+training-pair budget. The expanded input
+dimensionality (6{,}300 vs.\ 1{,}700 features
+per epoch) cannot be constrained by 1{,}654
+training pairs, leading to overfitting and
+training instability. This identifies data
+scale, rather than encoder capacity, as the
+primary bottleneck.
 
-Fig.~\ref{fig:ablation} visualises the Top-5
+Fig.~\ref{fig:ablation} visualises Top-5
 accuracy across all configurations.
 
-% ── FLOAT 3: FIGURE 2 — Ablation bar chart ──
+% ── FLOAT 3: FIGURE 2 ──
 \begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{phase2/fig2_ablation.png}
-\caption{Top-5 retrieval accuracy across
-five configurations. Image CLIP targets
-($\tau$=0.05) outperform all baselines.
-Mixing image and text targets degrades
-performance, suggesting the two modalities
-occupy sufficiently distinct CLIP sub-spaces
-that their mixture introduces noise.}
+\caption{Top-5 retrieval accuracy across the
+five configurations in Table~\ref{tab:ablation}.
+Image CLIP targets with $\tau{=}0.05$ yield the
+best result. Mixing text and image targets
+degrades performance relative to either
+modality alone.}
 \label{fig:ablation}
 \end{figure}
 % ── END FLOAT 3 ──
 
 \subsection{Channel Importance Analysis}
 
-The ATM gating mechanism reveals which
-electrodes contribute most to the learned
-representation. Under the 17-channel
-configuration, P3 (left parietal) receives
-the highest gate weight. P3 is the scalp
-projection of the P300 ERP component,
-associated with attentional orientation
-toward salient stimuli. Under the 63-channel
-configuration, temporal region electrodes
-(T7, T8 and neighbours) dominate, consistent
-with the inferior temporal cortex's role in
-visual object identity processing — the
-terminal stage of the ventral visual
+The learned attention gates expose which
+electrodes contribute most to the final
+embedding. Under the 17-channel configuration,
+P3 (left parietal) receives the highest gate
+weight. P3 is the scalp projection of the
+P300 ERP component, which is associated with
+attentional orientation toward salient
+stimuli. Under the 63-channel configuration,
+temporal-region electrodes (T7, T8, and
+neighbours) dominate, consistent with the
+role of inferior temporal cortex in visual
+object identity processing --- the terminal
+stage of the ventral visual
 stream~\cite{dicarlo2012}.
 
-% ── FLOAT 4: FIGURE 3 — Channel attention ──
 Fig.~\ref{fig:attention} shows the learned
 channel importance weights.
+
+% ── FLOAT 4: FIGURE 3 ──
 \begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{phase2/fig3_channel_attention}
-\caption{ATM channel gate weights averaged
-across 200 test EEG epochs. P3 (left parietal)
-receives highest weight, consistent with the
-P300 ERP component associated with attentional
+\caption{Learned channel gate weights,
+averaged across the 200 test EEG epochs.
+P3 (left parietal) receives the highest
+weight, consistent with the P300 ERP
+component's association with attentional
 orientation toward visual stimuli.}
 \label{fig:attention}
 \end{figure}
@@ -406,171 +452,179 @@ orientation toward visual stimuli.}
 
 \subsection{Qualitative Analysis}
 
-Retrieval errors exhibit a consistent pattern:
-retrieved concepts share low-level visual
-structure with the true concept rather than
-semantic category. The most illustrative
-example in our test set is the retrieval of
-\textit{blowtorch} (rank 3) for the true
-concept \textit{baton}, both of which are
-elongated cylindrical objects with similar
-aspect ratios and silhouettes. This suggests
-that EEG signals in the THINGS-EEG paradigm
-carry shape-level visual features, with
-semantic identity encoded more weakly at
-this spatial resolution and training scale.
+Retrieval errors exhibit a consistent
+pattern: the retrieved concepts tend to
+share low-level visual structure with the
+true concept rather than its semantic
+category. The clearest example in our test
+set is the retrieval of \textit{blowtorch}
+at rank 3 for the true concept \textit{baton};
+both are elongated cylindrical objects with
+similar aspect ratios and silhouettes. We
+present this as a single illustrative
+observation rather than as evidence for a
+general shape-encoding hypothesis.
 
-% ── FLOAT 5: FIGURE 4 — Generated examples ──
-Fig.~\ref{fig:qualitative} shows representative
-generation outputs.
+Fig.~\ref{fig:qualitative} shows
+representative generation outputs.
+
+% ── FLOAT 5: FIGURE 4 ──
 \begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{phase2/fig4_generated_examples}
-\caption{Qualitative generation examples.
-Images generated by Stable Diffusion v1.5
-conditioned on ATM-retrieved concept names.
-Shape-level similarity is evident in the
-baton/blowtorch example, suggesting EEG
-encodes low-level visual structure.}
+\caption{Illustrative synthesis outputs.
+Images generated by Stable Diffusion
+v1.5~\cite{rombach2022} conditioned on the
+\emph{text labels} of the top-1 retrieved
+concepts (french horn, lamp, boat). These
+are shown to illustrate the downstream
+application; the EEG embedding conditions
+the retrieval, not the synthesis.}
 \label{fig:qualitative}
 \end{figure}
 % ── END FLOAT 5 ──
 
+\subsection{Statistical Significance}
+\label{sec:stats}
+
+The best configuration attains 4.5\% Top-5
+accuracy on 200 test concepts, corresponding
+to 9 correct retrievals out of 200 against
+a chance rate of 2.5\% (expected 5 correct).
+A one-sided exact binomial test against
+the chance rate yields $p \approx 0.05$,
+which places the result at the boundary of
+conventional statistical significance. We
+therefore characterise our result as a
+\emph{weak but non-trivial} alignment signal
+rather than as competitive retrieval
+performance. This framing is important:
+with only 1{,}654 training pairs, a
+contrastive objective has limited capacity
+to shape a well-separated 512-dimensional
+embedding space, and the observed gap
+between our result and the 22\% Top-5
+reported by Scotti et al.~\cite{scotti2023}
+is consistent with their use of
+individual-subject training (roughly $10\times$
+more pairs) and GPU-scale batch sizes
+(larger effective negative sets per step).
+
 % ──────────────────────────────────────────────
 \section{Discussion}
+\label{sec:disc}
 
 \subsection{Comparison to Prior Work}
 
 Scotti et al.~\cite{scotti2023} achieved
 approximately 22\% Top-5 accuracy on
 THINGS-EEG using individual-subject EEG
-(not averaged) with GPU-scale batch training.
-Our 4.5\% Top-5 reflects two primary
-differences: (1) we average EEG across
-subjects, reducing effective training pairs
-from $\sim$16,540 to 1,654; (2) CPU training
-limits batch size to 128, reducing the
-number of negative pairs per update from
-which contrastive learning derives its signal.
-With individual-subject training and
-GPU access, we anticipate performance
-approaching published benchmarks.
+(rather than subject-averaged) with
+GPU-scale batch training. Our 4.5\% Top-5
+reflects two primary differences: (1) we
+average EEG across subjects, reducing the
+effective number of training pairs from
+roughly 16{,}540 to 1{,}654; and (2) our
+CPU-only environment limits the batch size
+to 128, reducing the number of negative
+pairs per update from which contrastive
+learning derives its signal. With
+individual-subject training and GPU access,
+we anticipate performance approaching
+published benchmarks; we regard our
+contribution as a controlled ablation of
+the design choices that mediate this gap,
+not as a new state-of-the-art.
 
-\subsection{Generation vs.\ Retrieval}
+\subsection{What This Paper Does and Does Not Show}
 
-For the LUCID application, generation fidelity
-rather than retrieval accuracy is the
-operationally relevant metric. A generated
-image need not match the \emph{exact} training
-concept; it must be semantically consistent
-with the mental imagery the EEG epoch was
-elicited by. Our generation pipeline produces
-coherent, high-quality imagery (via SD v1.5)
-from EEG-derived concept embeddings,
-demonstrating the feasibility of the proposed
-approach independent of retrieval accuracy.
+\textbf{Does:} We show that on the
+THINGS-EEG benchmark with subject-averaged
+EEG, image CLIP targets provide a
+measurably better contrastive signal than
+text CLIP targets; that mixing the two
+modalities degrades performance; that a
+63-channel input is not beneficial under
+a fixed training-pair budget; and that the
+learned channel gates concentrate on P3,
+a physiologically interpretable electrode.
+
+\textbf{Does not:} We do not reconstruct
+images from EEG. We do not train on sleep
+EEG. We do not claim state-of-the-art
+retrieval. The images shown in
+Fig.~\ref{fig:qualitative} are generated
+from the retrieved concept's \emph{text
+label}, not from the EEG embedding directly;
+the EEG signal contributes to the pipeline
+only via the retrieval step. No closed-loop
+brain-computer interface has been built or
+tested.
 
 \subsection{Limitations}
 
-Three primary limitations affect the current
-system. First, the training data comprises
-EEG during \emph{awake} visual stimulation,
-while the deployment target is \emph{REM sleep}
-EEG — a domain shift whose magnitude has not
-been quantified. Second, retrieval accuracy
-is modest due to data scale constraints.
-Third, end-to-end REM-state generation
-has not yet been validated with a wearable
-device. Each of these is addressed in the
-future work plan.
+Three limitations bound the scope of our
+conclusions. First, our training data are
+EEG recorded during \emph{awake} visual
+stimulation, while the eventual target
+application is sleep-EEG decoding; the
+domain shift between these regimes has not
+been quantified and may be substantial.
+Second, subject-averaging reduces the
+effective training-pair count by an order
+of magnitude relative to published
+individual-subject results, and this is
+the dominant reason our accuracy is
+modest. Third, our qualitative results
+rest on a small number of illustrative
+examples rather than on a systematic
+error analysis.
+
+\subsection{Future Work}
+
+We plan to extend this work in three
+directions. First, we will train on
+individual-subject EEG to recover the
+$\sim 10\times$ training-pair advantage
+and approach published benchmarks.
+Second, we will integrate a consumer
+EEG headband (e.g., Muse S) to enable
+real-time processing and to test the
+pipeline on non-laboratory data. Third,
+and most speculatively, we will investigate
+whether the alignment learned on awake
+EEG transfers to sleep-EEG settings,
+with the long-term goal of conditioning
+image synthesis on internally generated
+imagery during REM sleep. We emphasise
+that this last direction is a research
+proposal, not a demonstrated capability.
 
 % ──────────────────────────────────────────────
 \section{Conclusion}
 
-We have presented the first system integrating
-automated REM sleep detection with EEG-conditioned
-image generation in a closed-loop BCI pipeline.
-Our ATM-based alignment model achieves 1.8$\times$
-chance Top-5 retrieval on THINGS-EEG, with
-ablation results identifying image CLIP targets
-and standard contrastive temperature as optimal
-choices. Channel attention analysis reveals that
-EEG carries shape-level visual information,
-with temporal cortex channels most informative
-for object identity. The complete Phase 1 +
-Phase 2 pipeline — EEG sleep staging through
-to Stable Diffusion image generation — is
-released as open source and represents a
-significant step toward the long-term goal
-of LUCID: Reality?.
+We have presented a controlled ablation of
+EEG-to-CLIP contrastive alignment on the
+THINGS-EEG benchmark with subject-averaged
+training data. Image CLIP targets
+outperform text targets, mixing target
+modalities is harmful, and expanding input
+channel count is not beneficial at the
+1{,}654-pair training scale. Our best
+configuration attains 4.5\% Top-5
+retrieval accuracy (1.8$\times$ chance),
+at the boundary of statistical significance,
+and we identify data scale as the primary
+bottleneck. Channel-attention analysis
+reveals physiologically interpretable
+importance concentrated on P3. Extensions
+to individual-subject training, consumer
+EEG hardware, and sleep-EEG decoding are
+outlined as future work; no reconstruction
+from sleep EEG is attempted here.
 
-Future work will train on individual-subject
-EEG to recover the 10$\times$ training data
-advantage, integrate a consumer EEG headband
-(Muse S) for real-time REM-state generation,
-and conduct a prospective self-experiment
-comparing generated images with morning
-dream reports.
 
 % ──────────────────────────────────────────────
-\begin{thebibliography}{99}
-
-\bibitem{takagi2023}
-Y.\ Takagi and S.\ Scotti,
-``High-resolution image reconstruction with
-latent diffusion models from human brain
-activity,'' in \textit{CVPR}, 2023.
-
-\bibitem{mindvis2023}
-Z.\ Chen et al., ``Seeing beyond the brain:
-Conditional diffusion model with sparse masked
-modeling for vision decoding,''
-in \textit{CVPR}, 2023.
-
-\bibitem{scotti2023}
-P.\ Scotti et al., ``Reconstructing the Mind's
-Eye: fMRI-to-Image with contrastive learning
-and diffusion priors,''
-in \textit{NeurIPS}, 2023.
-
-\bibitem{gifford2022}
-A.\ T.\ Gifford et al., ``THINGS-EEG: Human
-electroencephalography recordings for 1,654
-concepts,'' \textit{NeuroImage}, 2022.
-
-\bibitem{radford2021}
-A.\ Radford et al., ``Learning transferable
-visual models from natural language
-supervision,'' in \textit{ICML}, 2021.
-
-\bibitem{rombach2022}
-R.\ Rombach et al., ``High-resolution image
-synthesis with latent diffusion models,''
-in \textit{CVPR}, 2022.
-
-\bibitem{atm2024}
-ATM: Attention-based Temporal-spatial Model
-for EEG analysis, \textit{NeurIPS}, 2024.
-
-\bibitem{sharma2026}
-A.\ Sharma, ``Automated sleep stage
-classification for closed-loop lucid dream
-induction via CNN-LSTM on single-channel EEG,''
-\textit{Zenodo}, 2026.
-doi:10.5281/zenodo.21885881.
-
-\bibitem{things2019}
-M.\ N.\ Hebart et al., ``THINGS: A database
-of 1,854 object concepts and more than
-26,000 naturalistic object images,''
-\textit{PLOS ONE}, 2019.
-
-\bibitem{dicarlo2012}
-J.\ J.\ DiCarlo, D.\ Zoccolan, and
-N.\ C.\ Rust, ``How does the brain solve
-visual object recognition?''
-\textit{Neuron}, 2012.
-
-\end{thebibliography}
-
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 \end{document}
