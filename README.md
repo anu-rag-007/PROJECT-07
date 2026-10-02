@@ -18,6 +18,7 @@ The repository currently contains the EEG preprocessing, sleep-stage classificat
 
 ## Table of Contents
 
+- [Published Work](#published-work)
 - [Project Overview](#project-overview)
 - [What Has Been Built](#what-has-been-built)
 - [System Architecture](#system-architecture)
