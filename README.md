@@ -9,7 +9,8 @@
 
 PROJECT-07 is the first major technical component of **LUCID: Reality?**, a long-term neurotechnology research project exploring whether EEG-based sleep-stage detection can be combined with controlled haptic stimulation to support lucid-dream induction.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21885881.svg)](https://doi.org/10.5281/zenodo.21885881)
+[![Phase 1 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21885881.svg)](https://doi.org/10.5281/zenodo.21885881)
+[![Phase 2 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23097798.svg)](https://doi.org/10.5281/zenodo.23097798)
 
 The repository currently contains the EEG preprocessing, sleep-stage classification, REM detection, decision/safety logic, haptic triggering pipeline, research documentation, experimental results, figures, and the roadmap toward EEG-to-dream-imagery reconstruction.
 
@@ -36,6 +37,33 @@ The repository currently contains the EEG preprocessing, sleep-stage classificat
 - [Author](#author)
 
 ---
+
+## Published Work
+
+### Phase 1 — Automated Sleep Stage Classification
+**"Automated Sleep Stage Classification for Closed-Loop
+Lucid Dream Induction via CNN-LSTM on Single-Channel EEG"**
+
+📄 [Paper (Zenodo)](https://doi.org/10.5281/zenodo.21885881)
+
+- CNN-LSTM hybrid on Sleep-EDF Extended (153 recordings)
+- κ = 0.68 random split · κ = 0.67 LOSO (20 subjects)
+- REM F1 = 0.81 · closed-loop haptic trigger validated
+- 177,411 epochs · single-channel EEG (Fpz-Cz)
+
+### Phase 2 — EEG-to-CLIP Contrastive Alignment
+**"Contrastive EEG-to-CLIP Alignment on THINGS-EEG:
+An Ablation of Target Modality, Temperature,
+and Channel Count"**
+
+📄 [Paper (Zenodo)](https://doi.org/10.5281/zenodo.23097798)
+
+- ATM encoder: 626K params · 17-channel EEG → 512-dim CLIP
+- Best: Image CLIP targets · τ=0.05 · Top-5 = 4.5% (1.8× chance)
+- Ablation: text vs image targets · temperature · channel count
+- Finding: P3 (left parietal) highest attention weight
+- Dataset: THINGS-EEG (50 subjects · 1,654 concepts)
+
 
 ## Project Overview
 
