@@ -7,7 +7,9 @@
 [![MNE](https://img.shields.io/badge/MNE--Python-EEG%20Processing-8A2BE2)](https://mne.tools/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-PROJECT-07 is the first major technical component of **LUCID: Reality?**, a long-term neurotechnology research project exploring whether EEG-based sleep-stage detection can be combined with controlled haptic stimulation to support lucid-dream induction.
+LUCID: Reality? is a multi-phase research project building toward EEG-guided imagery generation during REM sleep.
+
+PROJECT-07 is the first major technical component of **LUCID: Reality?**, a long-term neurotechnology research project exploring whether EEG-based sleep-stage detection can be combined with controlled haptic stimulation to support lucid-dream induction. Two phases are complete.
 
 [![Phase 1 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21885881.svg)](https://doi.org/10.5281/zenodo.21885881)
 [![Phase 2 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23097798.svg)](https://doi.org/10.5281/zenodo.23097798)
@@ -28,7 +30,8 @@ The repository currently contains the EEG preprocessing, sleep-stage classificat
 - [Installation](#installation)
 - [Usage](#usage)
 - [Core Components](#core-components)
-- [Research & Documentation](#research--documentation)
+- [Research & Documentation](#research-documentation)
+- [Experiment Log](#experiment--log)
 - [Project Roadmap](#project-roadmap)
 - [Current Status](#current-status)
 - [Limitations & Research Notes](#limitations--research-notes)
@@ -309,7 +312,7 @@ PROJECT-07/
 │   ├── requirements.txt
 │   └── README.md
 │
-├── Research Papers/
+├── reference_research_papers/
 │   └── Phase 2/
 │
 ├── PHASE3_PLAN.md
@@ -458,6 +461,22 @@ The project roadmap currently describes a progression from EEG sleep staging tow
 
 ---
 
+## Experiment Log
+
+| Exp | Description | Result | Notes |
+|-----|-------------|--------|-------|
+| 001 | SleepLSTM baseline | 76.85% acc | — |
+| 002 | CNN spectrograms | 71.67% acc | LSTM wins |
+| 003 | CNN-LSTM hybrid | **80.14%** / κ=0.71 | Best model |
+| 004 | EEG Transformer | 79.00% / κ=0.70 | — |
+| 005 | LOSO validation | 77.17% / κ=0.67 | 20 subjects |
+| 006 | Full dataset | 75.59% / κ=0.68 | 153 subjects |
+| 007 | ATM + Text CLIP | Top-5=3.5% | 1.4× chance |
+| 008 | ATM + Image CLIP | **Top-5=4.5%** | 1.8× chance |
+| 009 | ATM + 63-ch | Top-5=3.5% | Overfitting |
+
+---
+
 ## Project Roadmap
 
 ### Phase 1 — EEG Sleep Staging
@@ -472,17 +491,16 @@ The project roadmap currently describes a progression from EEG sleep staging tow
 - [x] Closed-loop prototype foundation
 - [x] Research publication/archival work
 
-### Phase 2 — EEG-to-Dream Imagery
+### Phase 2 — EEG-CLIP alignment ablation
 
-Planned/ongoing work includes:
+**Status: Substantially implemented**
 
-- [ ] THINGS-EEG integration
-- [ ] Short-window EEG representation learning
-- [ ] EEG alignment/embedding model
-- [ ] EEG-conditioned image generation
-- [ ] ComfyUI integration
-- [ ] IP-Adapter-based conditioning
-- [ ] Dream-imagery reconstruction experiments
+- [x] THINGS-EEG integration
+- [x] Short-window EEG representation learning
+- [x] EEG alignment/embedding model
+- [x] EEG-conditioned image generation
+- [x] ComfyUI integration
+- [x] IP-Adapter-based conditioning
 
 ### Phase 3 — 3D Dream Reconstruction
 
@@ -605,6 +623,7 @@ The ultimate research question is whether measurable neural activity during slee
 
 If you use this work, please cite:
 
+**Phase 1:**
 ```bibtex
 @misc{sharma2026lucid,
   author    = {Sharma, Anurag},
@@ -615,6 +634,20 @@ If you use this work, please cite:
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.21885881},
   url       = {https://doi.org/10.5281/zenodo.21885881}
+}
+```
+
+**Phase 2:**
+```bibtex
+@misc{sharma2026phase2,
+  author    = {Sharma, Anurag},
+  title     = {Contrastive EEG-to-CLIP Alignment
+               on THINGS-EEG: An Ablation of Target
+               Modality, Temperature, and Channel Count},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23097798},
+  url       = {https://doi.org/10.5281/zenodo.23097798}
 }
 ```
 
