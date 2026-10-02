@@ -699,4 +699,5 @@ The current implementation demonstrates a technical research pipeline and should
 ### Project Links
 
 - Repository: https://github.com/anu-rag-007/PROJECT-07
-- DOI: https://doi.org/10.5281/zenodo.21885881
+- Phase 1: https://doi.org/10.5281/zenodo.21885881
+- Phase 2: https://doi.org/10.5281/zenodo.23097798
